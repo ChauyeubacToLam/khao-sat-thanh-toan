@@ -1,0 +1,8 @@
+# Chi chay tren may, khong duoc deploy. Neu de lai, Vercel nham server.py
+# la diem vao cua ung dung va bien no thanh ham bat moi duong dan.
+server.py
+make_docx.py
+responses.jsonl
+DAN-VAO-VERCEL.txt
+__pycache__
+*.pyc
