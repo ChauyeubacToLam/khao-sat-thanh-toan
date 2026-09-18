@@ -268,56 +268,7 @@ def to_row(rec):
     return row
 
 
-def diagnose():
-    """Kiem tra tung khau ket noi Google Sheets. Chi tra ve trang thai va ten loi,
-    khong bao gio in ra noi dung khoa. Go bo sau khi da chay on."""
-    out = {}
-    raw = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "")
-    out["co_bien_GOOGLE_SERVICE_ACCOUNT_JSON"] = bool(raw)
-    out["do_dai_khoa"] = len(raw)
-    out["co_bien_SHEET_ID"] = bool(SHEET_ID)
-    out["do_dai_sheet_id"] = len(SHEET_ID)
-    out["ten_tab"] = TAB
-
-    try:
-        import google.auth  # noqa: F401
-        out["thu_vien_google_auth"] = "da cai"
-    except Exception as e:
-        out["thu_vien_google_auth"] = "THIEU: %s" % type(e).__name__
-        return out
-
-    try:
-        info = json.loads(raw) if raw else {}
-        out["client_email"] = info.get("client_email", "(khong doc duoc)")
-    except Exception as e:
-        out["doc_khoa"] = "LOI: %s" % type(e).__name__
-        return out
-
-    try:
-        tok = access_token()
-        out["lay_token"] = "OK, dai %d" % len(tok)
-    except Exception as e:
-        out["lay_token"] = "LOI: %s: %s" % (type(e).__name__, str(e)[:160])
-        return out
-
-    try:
-        got = sheet_call("GET", "/values/%s!A1:A1" % TAB, tok)
-        out["doc_sheet"] = "OK, hang dau: %s" % (got.get("values") or "(trong)")
-    except Exception as e:
-        body = ""
-        if hasattr(e, "read"):
-            try:
-                body = e.read().decode()[:260]
-            except Exception:
-                pass
-        out["doc_sheet"] = "LOI: %s: %s %s" % (type(e).__name__, str(e)[:120], body)
-    return out
-
-
 class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        return self._json({"chan_doan": diagnose()})
-
     def _json(self, payload, code=200):
         raw = json.dumps(payload).encode()
         self.send_response(code)
