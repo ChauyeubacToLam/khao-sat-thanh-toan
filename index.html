@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Khảo sát thanh toán tự phục vụ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Ngôn ngữ thị giác: editorial-academic. Nền giấy ấm, mực đậm, một màu nhấn xanh rêu.
+   Chữ Be Vietnam Pro vì được thiết kế riêng cho dấu tiếng Việt. */
+:root{
+  --paper:#f7f5f1; --card:#ffffff; --ink:#1c1f1d; --ink-2:#5d6663;
+  --line:#e2ded6; --line-2:#efece6;
+  --accent:#125e52; --accent-ink:#0d4740; --accent-wash:#e8f1ee;
+  --flag:#9a4a1e; --flag-wash:#fbf0e7;
+  --r-md:12px; --r-lg:16px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#15181a; --card:#1d2123; --ink:#e9e7e2; --ink-2:#9ba39f;
+    --line:#2f3437; --line-2:#262b2d;
+    --accent:#4fb3a1; --accent-ink:#7fd0bf; --accent-wash:#1a2b29;
+    --flag:#d99a63; --flag-wash:#2b2118;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#15181a; --card:#1d2123; --ink:#e9e7e2; --ink-2:#9ba39f;
+  --line:#2f3437; --line-2:#262b2d;
+  --accent:#4fb3a1; --accent-ink:#7fd0bf; --accent-wash:#1a2b29;
+  --flag:#d99a63; --flag-wash:#2b2118;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased}
+
+.topbar{position:sticky;top:0;z-index:20;background:var(--paper);
+  border-bottom:1px solid var(--line);padding:12px 0 11px}
+.topbar .in{max-width:760px;margin:0 auto;padding:0 20px;
+  display:flex;align-items:center;gap:15px}
+.steplabel{font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.bar{flex:1;height:3px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;
+  transition:width .45s cubic-bezier(.16,1,.3,1)}
+
+.wrap{max-width:760px;margin:0 auto;padding:30px 20px 96px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:34px 32px;margin-bottom:20px}
+
+h1{font-size:27px;line-height:1.28;font-weight:700;letter-spacing:-.02em;margin:0 0 10px}
+h2{font-size:21px;line-height:1.32;font-weight:600;letter-spacing:-.015em;margin:0 0 6px}
+.sub{color:var(--ink-2);font-size:14px;margin:0 0 22px}
+p{margin:0 0 14px}
+.lede{font-size:17px;line-height:1.6}
+
+.def{background:var(--accent-wash);padding:15px 18px;border-radius:var(--r-md);
+  font-size:14.5px;line-height:1.55;margin:0 0 4px}
+
+.q{padding:22px 0;border-top:1px solid var(--line-2)}
+.q:first-of-type{border-top:none;padding-top:10px}
+.qtext{display:flex;gap:12px;align-items:baseline;margin:0 0 14px}
+.qnum{color:var(--ink-2);font-size:13px;font-weight:600;min-width:20px;
+  font-variant-numeric:tabular-nums;flex-shrink:0}
+.qbody{font-size:15.5px;line-height:1.55}
+
+/* Thang Likert chỉ hiện số. Nhãn chữ nằm ở hàng chú thích dính phía trên,
+   nhờ vậy ô bấm đủ lớn trên điện thoại mà người trả lời vẫn không mất mốc. */
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.scale label{position:relative;display:flex;align-items:center;justify-content:center;
+  min-height:52px;border:1.5px solid var(--line);border-radius:var(--r-md);cursor:pointer;
+  font-size:17px;font-weight:600;color:var(--ink-2);background:var(--card);
+  transition:border-color .14s,background .14s,color .14s,transform .1s}
+.scale label:hover{border-color:var(--accent);color:var(--ink)}
+.scale label:active{transform:scale(.97)}
+.scale input{position:absolute;opacity:0;width:0;height:0}
+.scale label:has(input:checked){background:var(--accent);border-color:var(--accent);color:#fff}
+.scale label:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+
+.legend{position:sticky;top:45px;z-index:10;background:var(--card);
+  border-bottom:1px solid var(--line-2);padding:12px 0 13px;margin:18px 0 0}
+.legend .row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.legend span{font-size:10.5px;line-height:1.3;text-align:center;color:var(--ink-2);font-weight:500}
+.legend b{display:block;font-size:12.5px;color:var(--ink);font-weight:700;margin-bottom:3px}
+
+.anchors{display:flex;justify-content:space-between;gap:12px;margin:0 2px 9px;
+  font-size:12.5px;color:var(--ink-2);font-weight:500}
+
+.opts label{display:flex;gap:11px;align-items:flex-start;padding:13px 15px;
+  border:1.5px solid var(--line);border-radius:var(--r-md);margin-bottom:8px;
+  cursor:pointer;font-size:15px;line-height:1.5;transition:border-color .14s,background .14s}
+.opts label:hover{border-color:var(--accent)}
+.opts label:has(input:checked){background:var(--accent-wash);border-color:var(--accent)}
+.opts label:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.opts input{margin:5px 0 0;accent-color:var(--accent);flex-shrink:0}
+
+textarea{width:100%;min-height:96px;padding:13px 15px;border:1.5px solid var(--line);
+  border-radius:var(--r-md);background:var(--card);color:var(--ink);
+  font:inherit;font-size:15px;resize:vertical}
+textarea::placeholder{color:var(--ink-2);opacity:.9}
+textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+
+button{font:inherit;font-size:15px;font-weight:600;border:0;border-radius:var(--r-md);
+  padding:13px 30px;cursor:pointer;background:var(--accent);color:#fff;
+  transition:background .14s,transform .1s}
+button:hover{background:var(--accent-ink)}
+button:active{transform:translateY(1px)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+button.ghost{background:transparent;color:var(--ink-2);border:1.5px solid var(--line)}
+button.ghost:hover{background:var(--line-2);color:var(--ink)}
+.nav{display:flex;gap:12px;justify-content:space-between;align-items:center;
+  margin-top:30px;padding-top:24px;border-top:1px solid var(--line-2)}
+
+.alert{background:var(--flag-wash);border:1px solid var(--flag);color:var(--flag);
+  padding:13px 16px;border-radius:var(--r-md);font-size:14.5px;margin-bottom:20px;font-weight:500}
+.nudge{background:var(--accent-wash);border-radius:var(--r-md);
+  padding:17px 19px;margin-bottom:22px;font-size:14.5px;line-height:1.55}
+.nudge strong{display:block;margin-bottom:8px;font-size:15px;color:var(--accent-ink)}
+.nudge p{margin:0 0 10px}.nudge p:last-child{margin:0}
+.nudge .tiny{font-size:13px;color:var(--ink-2);padding-top:4px}
+.miss{box-shadow:-14px 0 0 -11px var(--flag)}
+.look{background:var(--accent-wash);border-radius:var(--r-md);
+  padding-left:14px;padding-right:14px;margin-left:-14px;margin-right:-14px}
+
+.src{font-size:12px;color:var(--ink-2);margin-top:24px;padding-top:16px;
+  border-top:1px solid var(--line-2)}
+.hide{display:none}
+
+@media (max-width:620px){
+  .wrap{padding:20px 14px 72px}
+  .card{padding:22px 18px;border-radius:var(--r-md)}
+  h1{font-size:23px}h2{font-size:19px}
+  .topbar .in{padding:0 14px;gap:11px}
+  .scale{gap:6px}
+  .scale label{min-height:50px;font-size:16px}
+  .legend{top:44px}
+  .legend span{font-size:9px}.legend b{font-size:11.5px}
+  .nav{gap:8px}button{padding:13px 20px;font-size:14.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms !important;animation-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <span class="steplabel" id="steplabel"></span>
+  <span class="bar"><i id="bar"></i></span>
+</div></div>
+<div class="wrap"><div id="app"></div></div>
+
+<script src="survey.js"></script>
+<script>
+const A = {};
+const T = { start: Date.now(), page: {}, firstTouch: {} };
+let blur = 0, pasted = 0, page = 0;
+const pages = [];
+const RID = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random();
+
+addEventListener("blur", () => blur++);
+addEventListener("paste", () => pasted++);
+
+const shuffle = a => { a = a.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; }
+  return a; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+/* Trộn item trong khối, chèn câu kiểm soát. Thứ tự hiển thị được ghi lại để phân tích sau. */
+const ORDER = {};
+function blockItems(b){
+  if (ORDER[b.id]) return ORDER[b.id];
+  const base = b.items.map(([code, text, o]) => ({ code, text, rev: !!(o && o.reverse) }));
+  const list = shuffle(base);
+  QC_ITEMS.filter(q => q.block === b.id).forEach(q =>
+    list.splice(1 + Math.random() * (list.length - 1) | 0, 0, { code: q.code, text: q.text, qc: true }));
+  ORDER[b.id] = list;
+  return list;
+}
+
+/* Hàng chú thích thang, dính lại khi cuộn để người trả lời không mất mốc 1 tới 5 */
+const legendRow = () => `<div class="legend"><div class="row">${
+  LIKERT.map((L, k) => `<span><b>${k + 1}</b>${esc(L)}</span>`).join("")}</div></div>`;
+
+const navRow = (sendLabel) => `<div class="nav">
+  <button class="ghost" onclick="go(-1)">Quay lại</button>
+  ${sendLabel ? `<button id="sendBtn" onclick="submit()">${sendLabel}</button>`
+              : `<button onclick="next()">Tiếp tục</button>`}</div>`;
+
+pages.push({ id:"intro", step:"Giới thiệu", render: () => `
+  <div class="card">
+    <h1>Khi máy thay người thu ngân, bạn thấy nhanh hơn hay lo hơn?</h1>
+    <p class="sub">Nghiên cứu về thanh toán tự phục vụ tại cửa hàng bán lẻ Việt Nam</p>
+    <p class="lede">Bạn đã bao giờ tự quét mã món hàng rồi tự trả tiền ở siêu thị, tự gọi món trên
+       màn hình ở quán ăn nhanh, hay quét mã QR ngay tại quầy chưa?</p>
+    <p>Có người thấy như vậy nhanh và chủ động hơn hẳn. Có người lại thấp thỏm sợ máy quét sót,
+       tính trùng, trừ sai tiền mà chẳng biết gọi ai. Nhóm chúng tôi muốn biết bạn thuộc nhóm nào,
+       và công nghệ cần sửa ở đâu để vừa nhanh hơn vừa ít sai sót hơn.</p>
+    <p>Khảo sát mất khoảng <strong>7 tới 9 phút</strong>. Mọi thông tin được bảo mật tuyệt đối và
+       chỉ dùng cho mục đích nghiên cứu khoa học. Không có câu trả lời đúng hay sai, nhóm chỉ cần
+       cảm nhận thật của bạn.</p>
+    <div class="def"><strong>Một lưu ý nhỏ.</strong> Bảng hỏi có vài câu dùng để kiểm tra mức độ
+      tập trung, và phiếu trả lời qua loa sẽ bị loại khỏi phân tích. Bạn đọc kỹ từng câu giúp nhóm
+      nhé, cảm ơn bạn rất nhiều.</div>
+    <div class="nav"><span></span><button onclick="go(1)">Bắt đầu</button></div>
+  </div>` });
+
+pages.push({ id:"screen", step:"Sàng lọc", render: () => `
+  <div class="card">
+    <h2>Trước tiên, một câu hỏi ngắn</h2>
+    <p class="sub">Giúp nhóm xác định bạn có thuộc đối tượng khảo sát không.</p>
+    <div class="q" data-code="screen">
+      <div class="qtext"><div class="qbody">Trong <strong>3 tháng qua</strong>, bạn đã từng dùng máy
+        hoặc quầy thanh toán tự phục vụ tại cửa hàng bán lẻ chưa?<br>
+        <span style="color:var(--ink-2);font-size:14px">Bao gồm quầy tự quét tự trả tiền, quầy bán
+        tự động, kiosk tự gọi món, quét mã QR tại quầy.</span></div></div>
+      <div class="opts">${["Rồi, tôi đã từng dùng","Chưa, tôi chưa từng dùng"].map(o =>
+        `<label><input type="radio" name="screen" value="${esc(o)}"
+          onchange="set('screen',this.value)"><span>${esc(o)}</span></label>`).join("")}</div>
+    </div>
+    ${navRow()}
+  </div>` });
+
+pages.push({ id:"demo", step:"Thông tin chung", render: () => `
+  <div class="card">
+    <h2>Đôi nét về bạn</h2>
+    <p class="sub">Chỉ dùng để phân nhóm khi phân tích, không định danh bạn.</p>
+    ${DEMO.map((d, i) => `
+      <div class="q" data-code="${d.code}">
+        <div class="qtext"><span class="qnum">${i + 1}</span><div class="qbody">${esc(d.label)}</div></div>
+        <div class="opts">${d.opts.map(o => `<label><input type="radio" name="${d.code}"
+          value="${esc(o)}" onchange="set('${d.code}',this.value)"><span>${esc(o)}</span></label>`).join("")}</div>
+      </div>`).join("")}
+    ${navRow()}
+  </div>` });
+
+const GROUPS = [["EFF","REL"],["SEC","STF"],["PCT","PRK"],["TAX"],["CI","WOM"]];
+GROUPS.forEach((g, gi) => pages.push({ id:"g" + gi, step:"Cảm nhận " + (gi + 1) + "/5", render: () =>
+  g.map(bid => {
+    const b = BLOCKS.find(x => x.id === bid);
+    return `<div class="card">
+      <h2>${esc(b.title)}</h2>
+      <div class="def">${esc(b.def)}</div>
+      ${legendRow()}
+      ${blockItems(b).map((it, i) => `
+        <div class="q" data-code="${it.code}">
+          <div class="qtext"><span class="qnum">${i + 1}</span><div class="qbody">${esc(it.text)}</div></div>
+          <div class="scale">${LIKERT.map((L, k) => `
+            <label aria-label="${esc(L)}"><input type="radio" name="${it.code}" value="${k + 1}"
+              onchange="set('${it.code}',${k + 1})">${k + 1}</label>`).join("")}
+          </div>
+        </div>`).join("")}
+      <div class="src">Nguồn thang đo: ${esc(b.src)}</div>
+    </div>`; }).join("") + navRow() }));
+
+pages.push({ id:"sat", step:"Hài lòng", render: () => `
+  <div class="card">
+    <h2>Nhìn lại toàn bộ trải nghiệm</h2>
+    <div class="def">Nghĩ về tất cả những lần bạn thanh toán tại máy tự phục vụ, bạn thấy trải nghiệm
+      đó như thế nào? Hãy chọn vị trí gần với cảm nhận của bạn nhất.</div>
+    ${SAT_ANCHORS.map(([code, lo, hi], i) => `
+      <div class="q" data-code="${code}">
+        <div class="qtext"><span class="qnum">${i + 1}</span><div class="qbody">Trải nghiệm đó là</div></div>
+        <div class="anchors"><span>${esc(lo)}</span><span>${esc(hi)}</span></div>
+        <div class="scale">${[1,2,3,4,5].map(k => `
+          <label aria-label="mức ${k}"><input type="radio" name="${code}" value="${k}"
+            onchange="set('${code}',${k})">${k}</label>`).join("")}</div>
+      </div>`).join("")}
+    <div class="src">Nguồn thang đo: Bhattacherjee (2001), Satisfaction (semantic differential)</div>
+    ${navRow()}
+  </div>` });
+
+pages.push({ id:"err", step:"Sự cố", render: () => `
+  <div class="card">
+    <h2>Phần cuối, về những lần trục trặc</h2>
+    <p class="sub">Đây là phần quan trọng nhất với nghiên cứu, mong bạn trả lời thật.</p>
+    ${ERROR_BLOCK.map((d, i) => `
+      <div class="q ${d.showIf && A.err_exp !== d.showIf ? "hide" : ""}" data-code="${d.code}">
+        <div class="qtext"><span class="qnum">${i + 1}</span><div class="qbody">${esc(d.label)}</div></div>
+        <div class="opts">${d.opts.map(o => `<label><input type="${d.multi ? "checkbox" : "radio"}"
+          name="${d.code}" value="${esc(o)}"
+          onchange="${d.multi ? `setMulti('${d.code}',this)` : `set('${d.code}',this.value);draw()`}"
+          ><span>${esc(o)}</span></label>`).join("")}</div>
+      </div>`).join("")}
+    ${OPEN_QS.map(q => `
+      <div class="q" data-code="${q.code}" data-optional="1">
+        <div class="qtext"><div class="qbody">${esc(q.label)}</div></div>
+        <textarea oninput="set('${q.code}',this.value)"
+          placeholder="Bạn có thể bỏ qua nếu không muốn trả lời"></textarea>
+      </div>`).join("")}
+    ${navRow("Gửi khảo sát")}
+  </div>` });
+
+function set(code, v){
+  A[code] = v;
+  if (!T.firstTouch[code]) T.firstTouch[code] = Date.now() - T.start;
+  document.querySelector(`[data-code="${code}"]`)?.classList.remove("miss");
+}
+function setMulti(code, el){
+  const box = el.closest(".q");
+  A[code] = [...box.querySelectorAll("input:checked")].map(x => x.value);
+  box.classList.remove("miss");
+}
+function requiredOnPage(){
+  return [...document.querySelectorAll(".q")]
+    .filter(q => !q.classList.contains("hide") && !q.dataset.optional)
+    .map(q => q.dataset.code);
+}
+
+/* ---------- nhắc nhẹ ngay lúc đang điền ----------
+   Mục tiêu: cứu phiếu tại chỗ thay vì loại sau khi gửi. Nguyên tắc:
+   không buộc tội, không chặn cứng, nhắc một lần, bấm tiếp lần nữa là đi.
+   Mọi lần nhắc đều được ghi lại để đánh giá chất lượng sau. */
+const NUDGE = { log: [], byPage: {} };
+const QC_MAP = Object.fromEntries(QC_ITEMS.map(q => [q.code, q]));
+
+function pageScaleCodes(){
+  return [...document.querySelectorAll(".q")]
+    .filter(q => q.querySelector(".scale") && !q.classList.contains("hide"))
+    .map(q => q.dataset.code);
+}
+
+function pageIssues(){
+  const codes = pageScaleCodes();
+  if (!codes.length) return [];
+  const vals = codes.map(c => A[c]).filter(v => typeof v === "number");
+  const out = [];
+
+  // 1. chọn cùng một mức cho nhiều câu liền nhau
+  let run = 1, best = 1, bestVal = vals[0];
+  for (let i = 1; i < vals.length; i++){
+    if (vals[i] === vals[i - 1]) { run++; if (run > best) { best = run; bestVal = vals[i]; } }
+    else run = 1;
+  }
+  if (best >= 5 || (vals.length >= 4 && best === vals.length)){
+    out.push({ kind:"straight",
+      codes: codes.filter(c => A[c] === bestVal),
+      msg:`Nhóm thấy bạn chọn cùng mức ${bestVal} cho ${best} câu liền nhau. Nếu đó đúng là cảm nhận `
+        + `của bạn thì hoàn toàn ổn, bạn bấm “Tiếp tục” lần nữa nhé. Còn nếu lỡ tay thì chỉnh lại giúp nhóm.` });
+  }
+
+  // 2. làm quá nhanh so với số câu trên trang
+  if (Date.now() - T._in < codes.length * 1500){
+    out.push({ kind:"fast", codes:[],
+      msg:"Phần này bạn làm khá nhanh. Bạn lướt lại một lượt cho chắc rồi bấm “Tiếp tục” giúp nhóm nhé." });
+  }
+
+  // 3. câu có yêu cầu chọn mức cụ thể mà chọn sai, cho sửa tại chỗ
+  const wrongQC = codes.filter(c => {
+    const q = QC_MAP[c];
+    return q && q.expect !== undefined && typeof A[c] === "number"
+           && Math.abs(A[c] - q.expect) > (q.tol || 0);
+  });
+  if (wrongQC.length){
+    out.push({ kind:"qc", codes: wrongQC,
+      msg:"Có câu được tô sáng bên dưới cần bạn đọc lại, nội dung câu đó yêu cầu chọn đúng một mức "
+        + "cụ thể. Bạn xem lại giúp nhóm nhé." });
+  }
+
+  // 4. cặp trái nghĩa trả lời gần giống nhau
+  const [a1, a2] = ["ANT1","ANT2"].map(c => A[c]);
+  if (typeof a1 === "number" && typeof a2 === "number" && Math.abs(a1 - a2) <= 1
+      && codes.some(c => c === "ANT1" || c === "ANT2")){
+    out.push({ kind:"antonym", codes: codes.filter(c => c === "ANT1" || c === "ANT2"),
+      msg:"Câu được tô sáng hỏi điều <em>ngược lại</em> với một câu bạn đã trả lời ở phần trước, "
+        + "nhưng bạn chọn cùng một mức. Bạn xem lại giúp nhóm xem có đúng ý mình không nhé." });
+  }
+
+  // 5. cặp đồng nghĩa lệch xa
+  const [s1, s2] = ["SYN1","SYN2"].map(c => A[c]);
+  if (typeof s1 === "number" && typeof s2 === "number" && Math.abs(s1 - s2) >= 3
+      && codes.some(c => c === "SYN1" || c === "SYN2")){
+    out.push({ kind:"synonym", codes: codes.filter(c => c === "SYN1" || c === "SYN2"),
+      msg:"Câu được tô sáng hỏi gần giống một câu ở phần trước, nhưng hai câu bạn trả lời lệch nhau khá xa. "
+        + "Bạn xem lại giúp nhóm nhé." });
+  }
+  return out;
+}
+
+function nudge(issues){
+  const pid = pages[page].id;
+  NUDGE.byPage[pid] = (NUDGE.byPage[pid] || 0) + 1;
+  issues.forEach(i => NUDGE.log.push({ page: pid, kind: i.kind, at: Date.now() - T.start,
+                                       before: Object.fromEntries(i.codes.map(c => [c, A[c]])) }));
+  document.querySelectorAll(".look").forEach(e => e.classList.remove("look"));
+  issues.forEach(i => i.codes.forEach(c =>
+    document.querySelector(`[data-code="${c}"]`)?.classList.add("look")));
+  document.querySelector(".nudge")?.remove();
+  const box = document.createElement("div");
+  box.className = "nudge";
+  box.innerHTML = `<strong>Nhóm xin phép nhắc nhẹ một chút</strong>`
+    + issues.map(i => `<p>${i.msg}</p>`).join("")
+    + `<p class="tiny">Khảo sát này nhóm chỉ thu được số lượng phiếu rất hạn chế, nên mỗi câu trả lời
+       thật của bạn đều rất quý. Cảm ơn bạn nhiều.</p>`;
+  document.querySelector(".card").prepend(box);
+  const first = issues.find(i => i.codes.length)?.codes[0];
+  (first ? document.querySelector(`[data-code="${first}"]`) : box)
+    ?.scrollIntoView({ behavior:"smooth", block:"center" });
+}
+function blanks(){
+  return requiredOnPage().filter(c =>
+    A[c] === undefined || A[c] === "" || (Array.isArray(A[c]) && !A[c].length));
+}
+function warn(msg){
+  document.querySelector(".alert")?.remove();
+  const d = document.createElement("div");
+  d.className = "alert"; d.textContent = msg;
+  document.querySelector(".card").prepend(d);
+}
+function flagBlanks(m){
+  m.forEach(c => document.querySelector(`[data-code="${c}"]`)?.classList.add("miss"));
+  document.querySelector(`[data-code="${m[0]}"]`)?.scrollIntoView({ behavior:"smooth", block:"center" });
+}
+function next(){
+  const m = blanks();
+  if (m.length){ flagBlanks(m); return warn(`Bạn còn ${m.length} câu chưa trả lời.`); }
+  if (pages[page].id === "screen" && A.screen === "Chưa, tôi chưa từng dùng") return bail();
+  // Nhắc một lần cho mỗi trang. Bấm “Tiếp tục” lần nữa là qua, không chặn ai cả.
+  const issues = pageIssues();
+  if (issues.length && !NUDGE.byPage[pages[page].id]) return nudge(issues);
+  go(1);
+}
+function go(step){
+  const id = pages[page].id;
+  T.page[id] = (T.page[id] || 0) + (Date.now() - (T._in || Date.now()));
+  page = Math.max(0, Math.min(pages.length - 1, page + step));
+  draw(); scrollTo({ top: 0, behavior: "smooth" });
+}
+function draw(){
+  T._in = Date.now();
+  document.getElementById("app").innerHTML = pages[page].render();
+  document.getElementById("bar").style.width = (page / (pages.length - 1) * 100) + "%";
+  document.getElementById("steplabel").textContent =
+    pages[page].step + "  ·  " + (page + 1) + "/" + pages.length;
+  for (const [k, v] of Object.entries(A)){
+    const vals = Array.isArray(v) ? v : [v];
+    vals.forEach(x => {
+      const el = document.querySelector(`[name="${k}"][value="${CSS.escape(String(x))}"]`);
+      if (el) el.checked = true;
+    });
+    const ta = document.querySelector(`[data-code="${k}"] textarea`);
+    if (ta && !Array.isArray(v)) ta.value = v;
+  }
+}
+function bail(){
+  document.getElementById("app").innerHTML = `<div class="card">
+    <h2>Cảm ơn bạn đã quan tâm</h2>
+    <p>Khảo sát này dành cho những người đã từng dùng máy hoặc quầy thanh toán tự phục vụ trong
+       3 tháng gần đây, nên rất tiếc lần này bạn chưa thuộc nhóm đối tượng.</p>
+    <p>Chúc bạn một ngày tốt lành.</p></div>`;
+  document.getElementById("bar").style.width = "100%";
+  document.getElementById("steplabel").textContent = "Kết thúc";
+}
+async function submit(){
+  const m = blanks();
+  if (m.length){ flagBlanks(m); return warn(`Bạn còn ${m.length} câu chưa trả lời.`); }
+  const issues = pageIssues();
+  if (issues.length && !NUDGE.byPage[pages[page].id]) return nudge(issues);
+  T.page[pages[page].id] = (T.page[pages[page].id] || 0) + (Date.now() - T._in);
+  const btn = document.getElementById("sendBtn");
+  btn.disabled = true; btn.textContent = "Đang gửi";
+  try {
+    // Trên Vercel là hàm serverless /api/submit, chạy ở máy thì server.py nhận /submit.
+    const endpoint = location.hostname === "localhost" || location.hostname === "127.0.0.1"
+      ? "/submit" : "/api/submit";
+    const r = await fetch(endpoint, { method:"POST", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        rid: RID, answers: A, order: ORDER,
+        timing: { total_ms: Date.now() - T.start, page_ms: T.page, first_touch_ms: T.firstTouch },
+        nudges: { count: NUDGE.log.length, by_page: NUDGE.byPage, log: NUDGE.log },
+        behaviour: { blur_count: blur, paste_count: pasted,
+                     ua: navigator.userAgent, viewport: innerWidth + "x" + innerHeight },
+      }) });
+    const j = await r.json();
+    document.getElementById("app").innerHTML = `<div class="card">
+      <h2>Đã nhận được phản hồi của bạn</h2>
+      <p>Nhóm nghiên cứu xin chân thành cảm ơn bạn đã dành thời gian. Những chia sẻ của bạn giúp nhóm
+         hiểu rõ hơn khách hàng Việt Nam thực sự cần gì từ các giải pháp thanh toán tự động.</p>
+      <p>Chúc bạn một ngày vui vẻ.</p>
+      <div class="src">Mã phiếu: ${esc(j.rid || RID)}</div></div>`;
+    document.getElementById("bar").style.width = "100%";
+    document.getElementById("steplabel").textContent = "Hoàn tất";
+    scrollTo({ top: 0, behavior: "smooth" });
+  } catch (e) {
+    warn("Không gửi được, vui lòng kiểm tra kết nối và thử lại.");
+    btn.disabled = false; btn.textContent = "Gửi khảo sát";
+  }
+}
+draw();
+</script>
+</body>
+</html>

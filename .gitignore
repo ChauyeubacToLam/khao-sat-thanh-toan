@@ -1,0 +1,6 @@
+responses.jsonl
+__pycache__/
+.vercel
+*.pyc
+*.json
+!vercel.json
