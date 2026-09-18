@@ -14,8 +14,7 @@ import urllib.request
 from datetime import datetime, timezone, timedelta
 from http.server import BaseHTTPRequestHandler
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from quality import assess  # noqa: E402
+from quality import assess
 
 SHEET_ID = os.environ.get("SHEET_ID", "")
 TAB = os.environ.get("SHEET_TAB", "responses")
