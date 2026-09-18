@@ -5,3 +5,5 @@ __pycache__/
 *.json
 !vercel.json
 DAN-VAO-VERCEL.txt
+
+.vercel
